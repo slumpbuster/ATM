@@ -1,0 +1,16 @@
+
+body {
+  margin: 8px;
+}
+
+select {
+  margin-top: 8px;
+  margin-right:2px;
+}
+
+input {
+  margin-left: 2px;
+}
+input[type=submit] {
+  background-color: lightgray;
+}
