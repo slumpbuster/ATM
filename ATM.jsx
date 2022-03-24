@@ -1,8 +1,8 @@
-const ATMDeposit = ({ onChange, isDeposit, deposit }) => {
+const ATMDeposit = ({ onChange, isDeposit, deposit, isValid }) => {
   return (
     <label className="label huge">      
       <input id="amount" type="number" width="200" onChange={onChange}></input>
-      <input id="submit" type="submit" width="200" value="Submit"></input>
+      <input id="submit" disabled={!isValid} type="submit" width="200" value="Submit"></input>
     </label>
   );
 };
@@ -11,24 +11,20 @@ const Account = () => {
   const [totalState, setTotalState] = React.useState(0);
   const [isDeposit, setIsDeposit] = React.useState(true);
   const [deposit, setDeposit] = React.useState(0);
-  const [error, setError] = React.useState('of $0');
-  const choice = ["Deposit", "Cash Back"];
+  const [atmMode, setatmMode] = React.useState('');
+  const [validTransaction, setValidTransaction] = React.useState(false);
+  const [msg, setMsg] = React.useState('Select transaction type to continue');
+  const choice = ["", "Deposit", "Withdrawal"];
 
   let status = `Account Balance $ ${totalState} `;
   const handleChange = (e) => {
-    let disable = false;
-    let transactionType = (document.getElementById('transaction').value === 'true');
-    let transaction = Number(document.getElementById('amount').value);
-    let tempError = `of $${transaction}`;
-    if ((transactionType ? totalState + transaction : totalState - transaction) < 0) {
-      tempError += ` would leave you negative`;
-      disable = true;
-    } else {
-      setDeposit(Number(transaction));
-    }
-    setError(tempError);
-    document.getElementById('submit').disabled = disable;
-    setIsDeposit(transactionType);
+    let amount = Number(event.target.value);
+    let valid = true;
+    if (amount <= 0) valid = false;
+    if ((atmMode === 'Withdrawal') && (amount > totalState)) valid = false;
+    message(atmMode, amount, totalState);
+    setValidTransaction(valid);
+    if (valid || amount === 0) setDeposit(amount);
   };
   const handleSubmit = () => {
     let newTotal = isDeposit ? totalState + deposit : totalState - deposit;
@@ -36,16 +32,38 @@ const Account = () => {
     document.getElementById('amount').value = '';
     event.preventDefault();
   };
+  const handleModeSelect = (event) => {
+    let transactionType = event.target.value;
+    message(transactionType, deposit, totalState);
+    setatmMode(transactionType);
+    setIsDeposit(transactionType === "Deposit");
+  };
+  const message = (mode, amount, total) =>
+  {
+    let tempMsg = `${mode}`;
+    if (tempMsg.length === 0) {
+      tempMsg = 'Select transaction type to continue';
+    } else {
+      tempMsg += ` $${amount}`;
+      if ((mode === 'Withdrawal') && (amount > total)) {
+        tempMsg += ` would leave you negative`;
+      }
+    }
+    setMsg(tempMsg);
+  }
 
   return (
     <form onSubmit={handleSubmit}>
       <h2 id="total">{status}</h2>
-      <h3>{`${choice[Number(!isDeposit)]} ${error}`}</h3>
-      <select id="transaction" onChange={handleChange}>
-        <option value="true">Deposit</option>
-        <option value="false">Withdrawal</option>
+      <h4>{`${msg}`}</h4>
+      <select id="transaction" onChange={(e) => handleModeSelect(e)}>
+        <option id="none" value=""></option>
+        <option id="deposit" value="Deposit">Deposit</option>
+        <option id="withdrawal" value="Withdrawal">Withdrawal</option>
       </select>
-      <ATMDeposit onChange={handleChange} isDeposit={isDeposit}></ATMDeposit>
+      {atmMode && (
+        <ATMDeposit onChange={handleChange} isDeposit={isDeposit} isValid={validTransaction}></ATMDeposit>
+      )}
     </form>
   );
 };
