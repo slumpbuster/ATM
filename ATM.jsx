@@ -8,12 +8,13 @@ const ATMDeposit = ({ onChange, isDeposit, deposit, isValid }) => {
 };
 
 const Account = () => {
-  const [totalState, setTotalState] = React.useState(0);
-  const [isDeposit, setIsDeposit] = React.useState(true);
-  const [deposit, setDeposit] = React.useState(0);
-  const [atmMode, setatmMode] = React.useState('');
-  const [validTransaction, setValidTransaction] = React.useState(false);
-  const [msg, setMsg] = React.useState('Select transaction type to continue');
+  const { useState, useEffect } = React;
+  const [totalState, setTotalState] = useState(0);
+  const [isDeposit, setIsDeposit] = useState(true);
+  const [deposit, setDeposit] = useState(0);
+  const [atmMode, setatmMode] = useState('');
+  const [validTransaction, setValidTransaction] = useState(false);
+  const [msg, setMsg] = useState('Select transaction type to continue');
   const choice = ["", "Deposit", "Withdrawal"];
 
   let status = `Account Balance $ ${totalState} `;
